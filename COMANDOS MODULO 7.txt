@@ -197,3 +197,92 @@ sudo samba-tool domain info 127.0.0.1
 
 # Para unir equipos Windows al dominio usar:
 # Add-Computer -DomainName "MIGUEL.LOCAL" -Credential
+
+
+
+
+
+
+
+
+
+#############################################
+#        PRÁCTICA 1 - CONFIGURACIÓN NFS     #
+#############################################
+
+############### SERVIDOR NFS ################
+
+# Instalar el servidor NFS
+sudo apt install nfs-kernel-server -y
+
+# Crear carpeta OS3
+mkdir OS3
+
+# Entrar a la carpeta OS3
+cd OS3
+
+# Mostrar contenido
+ls
+
+# Crear 100 archivos ADRIAN1.txt hasta ADRIAN100.txt
+touch ADRIAN{1..100}.txt
+
+# Editar configuración NFS
+sudo nano /etc/exports
+# Agregar:
+# /home/miguel1/OS3 192.168.16.0/24(rw,sync,no_subtree_check)
+
+# Aplicar exportaciones
+sudo exportfs -a
+
+# Ver exportaciones
+sudo exportfs -v
+
+# Reiniciar el servicio NFS
+sudo systemctl restart nfs-kernel-server
+
+# Ver ruta actual
+pwd
+
+
+############### CLIENTE NFS #################
+
+# Instalar cliente NFS
+sudo apt install nfs-common -y
+
+# Crear carpeta donde se montará el recurso
+mkdir CARPETA_DESTINO
+
+# Montar recurso NFS desde el servidor
+sudo mount 192.168.100.57:/home/miguel/OS3 /home/miguel2/CARPETA_DESTINO
+
+# Ver archivos montados
+ls CARPETA_DESTINO
+
+# Entrar a la carpeta montada
+cd CARPETA_DESTINO
+
+# Editar un archivo para probar escritura
+nano ADRIAN99.txt
+
+
+############ SERVIDOR – VERIFICACIÓN ##########
+
+# Verificar contenido del archivo editado
+cat ADRIAN99.txt
+
+# Editar fstab para montaje automático
+sudo nano /etc/fstab
+
+# Agregar esta línea:
+# 192.168.100.10:/srv/OS3   /mnt/OS3   nfs   defaults   0   0
+
+# Verificar montajes
+df -h
+
+# Reiniciar para probar el montaje automático
+sudo reboot
+
+# Comprobar montajes tras reinicio
+df -h
+
