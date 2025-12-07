@@ -1,31 +1,88 @@
-# PRÁCTICA 1 - CONFIGURACIÓN NFS
+#############################################
+#        PRÁCTICA 1 - CONFIGURACIÓN NFS     #
+#############################################
 
-# Servidor NFS
+############### SERVIDOR NFS ################
+
+# Instalar el servidor NFS
 sudo apt install nfs-kernel-server -y
-mkdir OS3
-cd OS3
+
+# Crear carpeta OS3 dentro del HOME del usuario
+mkdir /home/miguel1/OS3
+
+# Entrar a la carpeta OS3
+cd /home/miguel1/OS3
+
+# Mostrar contenido (debe estar vacía antes de crear archivos)
 ls
+
+# Crear 100 archivos ADRIAN1.txt hasta ADRIAN100.txt
 touch ADRIAN{1..100}.txt
+
+# Editar la configuración de NFS
 sudo nano /etc/exports
+
+# → Agregar esta línea dentro del archivo:
+# /home/miguel1/OS3 192.168.16.0/24(rw,sync,no_subtree_check)
+
+# Aplicar exportaciones configuradas
 sudo exportfs -a
-df -h
+
+# Ver exportaciones activas
+sudo exportfs -v
+
+# Reiniciar el servicio NFS
 sudo systemctl restart nfs-kernel-server
+
+# Ver la ruta actual solo para validar ubicación
 pwd
 
-# Cliente NFS
+
+############### CLIENTE NFS #################
+
+# Instalar el cliente NFS
 sudo apt install nfs-common -y
-mkdir CARPETA_DESTINO
-sudo mount 192.168.100.57:/home/miguel/OS3 /home/sistema3/CARPETA_DESTINO
-ls CARPETA_DESTINO
-cd CARPETA_DESTINO
+
+# Crear carpeta donde se montará el recurso NFS
+mkdir /home/miguel2/CARPETA_DESTINO
+
+# Montar carpeta compartida desde el servidor
+# (IP del servidor NFS: 192.168.100.57)
+sudo mount 192.168.100.57:/home/miguel1/OS3 /home/miguel2/CARPETA_DESTINO
+
+# Verificar que se montaron los archivos
+ls /home/miguel2/CARPETA_DESTINO
+
+# Entrar al directorio montado
+cd /home/miguel2/CARPETA_DESTINO
+
+# Editar un archivo para probar escritura
 nano ADRIAN99.txt
 
-# Servidor - Verificación
-cat ADRIAN99.txt
+
+############ SERVIDOR – VERIFICACIÓN ##########
+
+# Verificar desde el servidor que el archivo se editó correctamente
+cat /home/miguel1/OS3/ADRIAN99.txt
+
+
+############ MONTAJE AUTOMÁTICO (CLIENTE) ############
+
+# Editar fstab para montar el recurso automáticamente al arrancar
 sudo nano /etc/fstab
+
+# → Agregar esta línea:
+# 192.168.100.57:/home/miguel1/OS3   /home/miguel2/CARPETA_DESTINO   nfs   defaults   0   0
+
+# Verificar montajes activos
 df -h
+
+# Reiniciar la máquina cliente para comprobar el montaje automático
 sudo reboot
+
+# Verificar nuevamente después del reinicio
 df -h
+
 
 # PRÁCTICA 2 - CONFIGURACIÓN SAMBA
 
